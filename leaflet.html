@@ -16,22 +16,61 @@
  <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
  integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
  crossorigin=""></script>
+    <style>
+        path{
+            stroke-width: 0.5px;
 
+        }
+    </style>
+    <h2>LGA - Net Total DVA Clients</h2>
  <div id="mapid" style="height:600px"></div>
     <script>
-        var mymap = L.map('mapid').setView([-31.548738, 146.350932], 13);
-        
-        d3.json("./nsw2.json", function (data) {
+        var mymap = L.map('mapid').setView([-31.548738, 146.350932], 7);
+        colorData =[]
+        LGA = []
+        d3.json("./nsw.json", function (data) {
             geo = data
             console.log(data);
-            //drawMaps(data)
-            L.geoJSON(data, {
-                style: function (feature) {
-                    return {color: feature.properties.color};
+            regions = []
+            for (i = 0; i < geo.features.length; i++) {
+                regions[i] = geo.features[i].properties.nsw_loca_2
+            }
+            d3.csv("./LGA NSW July 2018.csv",function(d){
+                console.log(d);
+                colorData = d
+                for(i=0;i< colorData.length;i++){
+                    LGA[i] = colorData[i].LGA.toUpperCase().slice(0, -4)
                 }
-            }).bindPopup(function (layer) {
-                return layer.feature.properties.description;
-            }).addTo(mymap);
+                
+                L.geoJSON(data, {
+                    style: function (feature) {
+                        //console.log(feature)
+                        if(LGA.indexOf(feature.properties.nsw_loca_2)>-1){
+                            i = LGA.indexOf(feature.properties.nsw_loca_2)
+                            //console.log(i)
+                            c = parseInt(colorData[i]["Net Total DVA Clients"])
+                            return {color:getColor(c)};
+                        }
+                      return {color: 'black'};
+                    }
+                    //}).bindPopup(function (layer) {
+                    //  return layer.feature.properties.description;
+                }).addTo(mymap);
+            })
+            
+            function getColor(d) {
+            return d > 500 ? '#800026' :
+            d > 400 ? '#BD0026' :
+            d > 300 ? '#E31A1C' :
+            d > 200 ? '#FC4E2A' :
+            d > 100 ? '#FD8D3C' :
+            d > 50 ? '#FEB24C' :
+            d > 10 ? '#FED976' :
+            '#FFEDA0';
+            }
+
+
+            
         })
         
     </script>
