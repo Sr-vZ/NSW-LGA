@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+
+<head>
+    <title>D3.js v4 Mapping Tutorial 1</title>
+</head>
+
+<body>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/4.3.0/d3.min.js"></script>
+    <script>
+        //プロジェクション設定	
+        var projection = d3
+            .geoMercator() //投影法の指定
+            .scale(160) //スケール（ズーム）の指定
+            //.rotate([-0.25, 0.25, 0]) //地図を回転する　[x,y,z]
+            .center([-31.548738, 146.350932]); //中心の座標を指定
+
+        //パスジェネレーター生成
+        var path = d3.geoPath().projection(projection);　
+
+        //地図用のステージ(SVGタグ)を作成
+        var map = d3.select("body")
+            .append("svg")
+            .attr("width", 960)
+            .attr("height", 500);
+
+
+        //地理データ読み込み
+        geo = []
+        d3.json("./nsw2.json", function (data) {
+            geo = data
+            console.log(data);
+            drawMaps(data)
+        })
+
+        //地図を描画
+        function drawMaps(geojson) {
+            map.selectAll("path")
+                .data(geojson.features)
+                .enter()
+                .append("path")
+                .attr("d", path) //パスジェネレーターを使ってd属性の値を生成している
+                .attr("fill", "green")
+                .attr("fill-opacity", 0.5)
+                .attr("stroke", "#222");
+        }
+    </script>
+</body>
+
+</html>
